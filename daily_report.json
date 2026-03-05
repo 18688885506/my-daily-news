@@ -1,4 +1,25 @@
 {
     "date": "2026-03-05",
-    "categories": []
+    "categories": [
+        {
+            "title": "今日科技资讯",
+            "summary": "AI 正在思考中，请稍后再试。",
+            "prediction": "内容更新中。"
+        },
+        {
+            "title": "今日金融资讯",
+            "summary": "AI 正在思考中，请稍后再试。",
+            "prediction": "内容更新中。"
+        },
+        {
+            "title": "今日生活资讯",
+            "summary": "AI 正在思考中，请稍后再试。",
+            "prediction": "内容更新中。"
+        },
+        {
+            "title": "今日娱乐资讯",
+            "summary": "AI 正在思考中，请稍后再试。",
+            "prediction": "内容更新中。"
+        }
+    ]
 }
