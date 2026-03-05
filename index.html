@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 每日简报</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+    <div class="max-w-4xl mx-auto px-4 py-10">
+        <h1 class="text-3xl font-bold text-center text-blue-600 mb-2">AI 每日简报与预测</h1>
+        <p class="text-center text-gray-500 mb-8" id="date">数据加载中...</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="content"></div>
+    </div>
+
+    <script>
+        // 自动去读取生成的 JSON 文件
+        fetch('daily_report.json')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('date').innerText = '更新日期：' + data.date;
+                const container = document.getElementById('content');
+                data.categories.forEach(item => {
+                    container.innerHTML += `
+                        <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
+                            <h2 class="text-xl font-bold border-b pb-2 mb-3">${item.title}</h2>
+                            <p class="text-gray-700 text-sm mb-4 leading-relaxed"><span class="font-bold">📝 总结：</span>${item.summary}</p>
+                            <div class="bg-blue-50 p-3 rounded text-sm text-blue-800">
+                                <span class="font-bold">💡 建议：</span>${item.prediction}
+                            </div>
+                        </div>
+                    `;
+                });
+            })
+            .catch(error => {
+                document.getElementById('date').innerText = '数据加载失败，请检查文件。';
+            });
+    </script>
+</body>
+</html>
