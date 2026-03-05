@@ -1,23 +1,30 @@
-import google.generativeai as genai
+from google import genai
 import json, os
 from datetime import datetime
 
-# 1. 基础配置
-api_key = os.environ.get("GEMINI_API_KEY")
-genai.configure(api_key=api_key)
-model = genai.GenerativeModel('gemini-1.5-flash')
+print("--- [1] 使用新版 SDK 启动 ---")
 
-# 2. 准备数据容器
+# 配置客户端
+client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+model_id = "gemini-2.0-flash" # 使用最新的 2.0 免费模型
+
 data = {"date": datetime.now().strftime("%Y-%m-%d"), "categories": []}
 cats = ["科技", "金融", "生活", "娱乐"]
 
-# 3. 运行核心逻辑 (请确保下面这三行每一行开头都有 4 个空格)
 for c in cats:
     print(f"正在生成 {c}...")
-    res = model.generate_content(f"Summarize {c} news in JSON: title, summary, prediction. No markdown.")
-    data["categories"].append(json.loads(res.text.strip().replace('```json', '').replace('```', '')))
+    # 新版调用方式
+    response = client.models.generate_content(
+        model=model_id, 
+        contents=f"Summarize {c} news in JSON: title, summary, prediction. No markdown."
+    )
+    
+    # 清理并解析数据
+    txt = response.text.replace('```json', '').replace('```', '').strip()
+    data["categories"].append(json.loads(txt))
 
-# 4. 保存结果
+# 保存文件
 with open("daily_report.json", "w", encoding="utf-8") as f:
     json.dump(data, f, ensure_ascii=False, indent=4)
-print("--- SUCCESS ---")
+
+print("--- [2] 任务大功告成 ---")
