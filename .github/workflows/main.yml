@@ -1,0 +1,34 @@
+name: Daily News AI Auto
+
+on:
+  schedule:
+    - cron: '0 22 * * *' # UTC时间22点，相当于北京时间每天早上6点执行
+  workflow_dispatch: # 这个允许你手动点击运行按钮
+
+jobs:
+  run-ai-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 获取代码
+        uses: actions/checkout@v3
+        
+      - name: 装载 Python 运行环境
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: 安装依赖包
+        run: pip install google-generativeai
+          
+      - name: 运行 AI 脚本
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python main.py
+        
+      - name: 把 AI 生成的数据保存并更新到网页
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add daily_report.json
+          git commit -m "Auto update daily news" || exit 0
+          git push
