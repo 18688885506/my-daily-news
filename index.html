@@ -6,35 +6,56 @@
     <title>AI 每日简报</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans">
-    <div class="max-w-4xl mx-auto px-4 py-10">
-        <h1 class="text-3xl font-bold text-center text-blue-600 mb-2">AI 每日简报与预测</h1>
-        <p class="text-center text-gray-500 mb-8" id="date">数据加载中...</p>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="content"></div>
+<body class="bg-gray-50 min-h-screen pb-10">
+    <div class="max-w-4xl mx-auto px-4 pt-10">
+        <h1 class="text-3xl font-bold text-gray-800 text-center mb-2">AI 每日简报与预测</h1>
+        <p id="update-date" class="text-center text-gray-500 mb-10">更新日期：加载中...</p>
+
+        <div id="report-container" class="grid gap-6 md:grid-cols-2">
+            <p class="text-center col-span-full">正在努力读取简报数据...</p>
+        </div>
     </div>
 
     <script>
-        // 自动去读取生成的 JSON 文件
-        fetch('daily_report.json')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('date').innerText = '更新日期：' + data.date;
-                const container = document.getElementById('content');
+        async function loadReport() {
+            const container = document.getElementById('report-container');
+            const dateEl = document.getElementById('update-date');
+            
+            try {
+                // 加上时间戳防止浏览器缓存旧数据
+                const response = await fetch('daily_report.json?t=' + new Date().getTime());
+                if (!response.ok) throw new Error('找不到数据文件');
+                
+                const data = await response.json();
+                dateEl.innerText = `更新日期：${data.date}`;
+                
+                if (!data.categories || data.categories.length === 0) {
+                    container.innerHTML = '<p class="text-center col-span-full text-red-500">数据文件里还没有内容，请等待 AI 生成...</p>';
+                    return;
+                }
+
+                container.innerHTML = ''; // 清空加载提示
+                
                 data.categories.forEach(item => {
-                    container.innerHTML += `
-                        <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
-                            <h2 class="text-xl font-bold border-b pb-2 mb-3">${item.title}</h2>
-                            <p class="text-gray-700 text-sm mb-4 leading-relaxed"><span class="font-bold">📝 总结：</span>${item.summary}</p>
-                            <div class="bg-blue-50 p-3 rounded text-sm text-blue-800">
-                                <span class="font-bold">💡 建议：</span>${item.prediction}
-                            </div>
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow";
+                    card.innerHTML = `
+                        <h2 class="text-xl font-bold text-blue-600 mb-3">${item.title || '今日资讯'}</h2>
+                        <p class="text-gray-600 mb-4 leading-relaxed">${item.summary || '暂无总结'}</p>
+                        <div class="pt-4 border-t border-dashed border-gray-100">
+                            <span class="text-sm font-semibold text-amber-600">🚀 趋势预测</span>
+                            <p class="text-sm text-gray-500 mt-1">${item.prediction || '暂无预测'}</p>
                         </div>
                     `;
+                    container.appendChild(card);
                 });
-            })
-            .catch(error => {
-                document.getElementById('date').innerText = '数据加载失败，请检查文件。';
-            });
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = `<p class="text-center col-span-full text-red-500">❌ 数据加载失败：${error.message}</p>`;
+            }
+        }
+
+        loadReport();
     </script>
 </body>
 </html>
